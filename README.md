@@ -6,7 +6,7 @@ Table of Contents
 3.Installation Guide
 4.Configuration
 5.Usage Instructions
-6.Sample Commands
+6.Sample Commands and Expected Output
 7.Troubleshooting
 8.Security Notes
 9.License
@@ -28,3 +28,36 @@ FileZilla Server (version 0.9.60 or higher)
 Installation Guide
 Install FileZilla Server
 Install ClamAV
+
+Configuration
+1.FileZilla Server Configuration
+Launch FileZilla Server Interface
+Go to Edit → Users
+Add a new user with:
+Username: SinhVien
+Password: 123456789
+Home directory: D:/Test
+Set appropriate permissions (read/write/delete/etc.)
+2.ClamAV Configuration
+
+Usage Instructions
+
+Sample Commands and Expected Output
+Basic Navigation
+ls                  # List files
+cd documents        # Change directory
+pwd                 # Show current directory
+mkdir secure_folder # Create directory
+File Operations
+put report.pdf                  # Upload single file (scanned first)
+mput *.txt                      # Upload multiple text files
+get important.docx              # Download file
+delete old_file.zip             # Delete file
+rename draft.txt final.txt      # Rename file
+Session Management
+binary          # Set binary transfer mode
+ascii           # Set ASCII transfer mode
+passive         # Toggle passive mode
+status          # Show connection status
+help            # Display command help
+quit            # Exit the client
