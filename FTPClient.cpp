@@ -161,6 +161,7 @@ void FTPClient::togglePassiveMode() {
         // Actually send PASV command to server
         string response = sendCommand("PASV");
         cout << "Server response: " << response << "\n";
+    }
 }
 
 void FTPClient::showStatus() const {
