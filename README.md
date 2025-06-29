@@ -24,3 +24,7 @@ Software Requirements
 C++17 compatible compiler (g++ 9.0 or higher)
 ClamAV antivirus (version 0.103 or higher)
 FileZilla Server (version 0.9.60 or higher)
+
+Installation Guide
+Install FileZilla Server
+Install ClamAV
