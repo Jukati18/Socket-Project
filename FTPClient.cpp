@@ -157,6 +157,10 @@ void FTPClient::setTransferMode(bool binary) {
 void FTPClient::togglePassiveMode() {
     m_passiveMode = !m_passiveMode;
     cout << "Passive mode " << (m_passiveMode ? "enabled" : "disabled") << "\n";
+    if (m_passiveMode) {
+        // Actually send PASV command to server
+        string response = sendCommand("PASV");
+        cout << "Server response: " << response << "\n";
 }
 
 void FTPClient::showStatus() const {
