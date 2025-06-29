@@ -16,3 +16,11 @@ This project implements a secure FTP client with integrated virus scanning funct
 1.Custom FTP Client: A C++ application that provides FTP-like commands with additional security features
 2.ClamAVAgent: A scanning service that checks files for viruses before they're uploaded to the FTP server
 3.FileZilla Server: The standard FTP server that stores files after they've been cleared by the virus scanner
+
+Prerequisites
+Hardware Requirements
+Three machines (or three terminal windows on one machine)
+Software Requirements
+C++17 compatible compiler (g++ 9.0 or higher)
+ClamAV antivirus (version 0.103 or higher)
+FileZilla Server (version 0.9.60 or higher)
