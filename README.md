@@ -23,7 +23,7 @@ ClamAV antivirus (version 0.103 or higher)
 FileZilla Server (version 0.9.60 or higher)
 
 Installation Guide
-Install FileZilla Server
+Install FileZilla Server: https://filezilla-project.org/download.php?type=server
 Install ClamAV
 
 Configuration
