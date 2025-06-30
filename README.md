@@ -7,8 +7,6 @@ Table of Contents
 4.Configuration
 5.Usage Instructions
 6.Sample Commands and Expected Output
-7.Troubleshooting
-8.Security Notes
 
 System Overview
 This project implements a secure FTP client with integrated virus scanning functionality. The system consists of three main components:
@@ -60,13 +58,3 @@ passive         # Toggle passive mode
 status          # Show connection status
 help            # Display command help
 quit            # Exit the client
-
-Troubleshooting
-
-Security Notes
-1.This implementation is designed for educational purposes only
-2.For production use:
-  -Implement TLS encryption for all connections
-  -Use stronger authentication mechanisms
-  -Regularly update ClamAV virus definitions
-3.Default credentials should always be changed
