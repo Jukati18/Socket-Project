@@ -39,7 +39,7 @@ This project delivers a **secure FTP client** with integrated virus scanning. Th
    Download and install from the official website (https://filezilla-project.org/download.php?type=server).
 
 2. **Install ClamAV**  
-   Download and install the latest version from the official ClamAV site.
+   Download and install the latest version from the official ClamAV site (https://www.clamav.net/downloads).
 
 ## 4. Configuration
 
@@ -55,7 +55,7 @@ This project delivers a **secure FTP client** with integrated virus scanning. Th
 
 ### 4.2 ClamAV
 
-- Ensure ClamAV is installed and the virus database is updated(https://www.clamav.net/downloads).
+- Ensure ClamAV is installed and the virus database is updated.
 - Confirm the path to `clamscan.exe` and the database directory in your code matches your installation.
 
 ## 5. Usage Instructions
