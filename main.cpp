@@ -115,10 +115,20 @@ int main()
         }
         else if (command == "mput")
         {
+            if (!client.isLoggedIn())
+            {
+                cout << "Ban phai dang nhap truoc khi upload file.\n";
+                continue;
+            }
             client.uploadMultipleFiles();
         }
         else if (command == "get")
         {
+            if (!client.isLoggedIn())
+            {
+                cout << "Ban phai dang nhap truoc khi download file.\n";
+                continue;
+            }
             cout << "Nhap ten file de tai ve: ";
             string fname;
             getline(cin, fname);
@@ -126,6 +136,10 @@ int main()
         }
         else if (command == "mget")
         {
+            {
+                cout << "Ban phai dang nhap truoc khi download file.\n";
+                continue;
+            }
             client.downloadMultipleFiles();
         }
         else if (command == "ls")
