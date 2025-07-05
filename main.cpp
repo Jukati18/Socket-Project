@@ -103,6 +103,11 @@ int main()
         }
         else if (command == "put")
         {
+            if (!client.isLoggedIn())
+            {
+                cout << "Ban phai dang nhap truoc khi upload file.\n";
+                continue;
+            }
             cout << "Nhap ten file de upload: ";
             string fname;
             getline(cin, fname);
