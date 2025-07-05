@@ -58,3 +58,64 @@ passive         # Toggle passive mode
 status          # Show connection status
 help            # Display command help
 quit            # Exit the client
+
+
+## Additional Notes and Detailed Setup
+
+### 7. Detailed ClamAV Setup
+
+- Download ClamAV from the official website and install it.
+- Create a folder for the virus database, for example: `F:\ClamAV\database`.
+- Update the virus database using:
+  ```sh
+  freshclam --datadir=F:\ClamAV\database
+  ```
+- Ensure the path to `clamscan.exe` and the database in your code matches your installation, e.g., `F:\ClamAV\clamscan.exe`.
+
+### 8. Compiling the Source Code
+
+- Make sure you have a C++17 compatible compiler (e.g., g++ from MinGW or MSYS2).
+- Open a terminal in the source code directory.
+- Compile the project with:
+  ```sh
+  g++ -std=c++17 -o ftpclient main.cpp FTPClient.cpp Clamav_agent.cpp -lws2_32 -lstdc++fs
+  ```
+- If you encounter missing library errors, check your compiler installation and ensure all required libraries are present.
+
+### 9. Running the System
+
+- Start the ClamAVAgent service (it listens on port 8888 by default).
+- Start FileZilla Server and ensure it is running and listening on port 21.
+- Run the compiled FTP client:
+  ```sh
+  ./ftpclient
+  ```
+
+### 10. Security Notice
+
+- You must log in before using file upload/download commands (`put`, `get`, `mput`, `mget`). The client enforces authentication for these operations.
+- Only files that pass the ClamAV scan will be uploaded to the server.
+- Adjust all file paths in the code to match your system if you use a different directory structure.
+
+### 11. Example FTP Client Session
+
+```sh
+ftp> connect 127.0.0.1 21
+ftp> login SinhVien 123456789
+ftp> put file1.txt
+ftp> get file2.txt
+ftp> ls
+ftp> quit
+```
+
+### 12. Troubleshooting
+
+- If you cannot upload or download files, check that you are logged in.
+- Verify that ClamAVAgent is running and accessible on port 8888.
+- Ensure FileZilla Server is running and the user has correct permissions.
+- For Linux users, adjust all Windows-style paths and compilation commands accordingly.
+
+### 13. Contact
+
+For further support, please contact the developer or refer to this README for guidance.
+
