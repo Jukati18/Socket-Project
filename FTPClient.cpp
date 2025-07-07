@@ -352,3 +352,68 @@ void FTPClient::togglePrompt() {
     promptConfirm = !promptConfirm;
     cout << "Xac nhan mget/mput: " << (promptConfirm ? "BAT" : "TAT") << endl;
 }
+
+bool FTPClient::changeDirectory(const std::string& path) {
+    if (!m_connected) {
+        cout << "Not connected\n";
+        return false;
+    }
+    string response = sendCommand("CWD " + path);
+    cout << response;
+    return response.find("250") != string::npos;
+}
+
+bool FTPClient::printWorkingDirectory() {
+    if (!m_connected) {
+        cout << "Not connected\n";
+        return false;
+    }
+    string response = sendCommand("PWD");
+    cout << response;
+    return true;
+}
+
+bool FTPClient::makeDirectory(const std::string& dirname) {
+    if (!m_connected) {
+        cout << "Not connected\n";
+        return false;
+    }
+    string response = sendCommand("MKD " + dirname);
+    cout << response;
+    return response.find("257") != string::npos;
+}
+
+bool FTPClient::removeDirectory(const std::string& dirname) {
+    if (!m_connected) {
+        cout << "Not connected\n";
+        return false;
+    }
+    string response = sendCommand("RMD " + dirname);
+    cout << response;
+    return response.find("250") != string::npos;
+}
+
+bool FTPClient::deleteFile(const std::string& filename) {
+    if (!m_connected) {
+        cout << "Not connected\n";
+        return false;
+    }
+    string response = sendCommand("DELE " + filename);
+    cout << response;
+    return response.find("250") != string::npos;
+}
+
+bool FTPClient::renameFile(const std::string& from, const std::string& to) {
+    if (!m_connected) {
+        cout << "Not connected\n";
+        return false;
+    }
+    string response = sendCommand("RNFR " + from);
+    if (response.find("350") == string::npos) {
+        cout << response;
+        return false;
+    }
+    response = sendCommand("RNTO " + to);
+    cout << response;
+    return response.find("250") != string::npos;
+}

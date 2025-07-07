@@ -20,11 +20,16 @@ void showHelp()
          << " get                   - Tai 1 file ve\n"
          << " mget                  - Tai nhieu file ve\n"
          << " ls                    - Xem danh sach file tren server\n"
+         << " cd <path>             - Thay doi thu muc\n"
+         << " pwd                   - Xem thu muc hien tai\n"
+         << " mkdir <name>          - Tao thu muc\n"
+         << " rmdir <name>          - Xoa thu muc\n"
+         << " delete <file>         - Xoa file\n"
+         << " rename <from> <to>    - Doi ten file\n"
          << " prompt                - Bat/tat xac nhan khi mget/mput\n"
          << " help, ?               - Xem huong dan\n"
          << " quit, exit            - Thoat chuong trinh\n\n";
 }
-
 int main()
 {
     FTPClient client;
@@ -100,6 +105,64 @@ int main()
         else if (command == "status")
         {
             client.showStatus();
+        }
+         else if (command == "ls")
+        {
+            client.listFiles();
+        }
+        else if (command == "cd")
+        {
+            string path;
+            iss >> path;
+            if (path.empty()) {
+                cout << "Usage: cd <directory>\n";
+            } else {
+                client.changeDirectory(path);
+            }
+        }
+        else if (command == "pwd")
+        {
+            client.printWorkingDirectory();
+        }
+        else if (command == "mkdir")
+        {
+            string dirname;
+            iss >> dirname;
+            if (dirname.empty()) {
+                cout << "Usage: mkdir <dirname>\n";
+            } else {
+                client.makeDirectory(dirname);
+            }
+        }
+        else if (command == "rmdir")
+        {
+            string dirname;
+            iss >> dirname;
+            if (dirname.empty()) {
+                cout << "Usage: rmdir <dirname>\n";
+            } else {
+                client.removeDirectory(dirname);
+            }
+        }
+        else if (command == "delete")
+        {
+            string filename;
+            iss >> filename;
+            if (filename.empty()) {
+                cout << "Usage: delete <filename>\n";
+            } else {
+                client.deleteFile(filename);
+            }
+        }
+        else if (command == "rename")
+        {
+            string from, to;
+            iss >> from >> to;
+            if (from.empty() || to.empty()) {
+                cout << "Usage: rename <from> <to>\n";
+            } else {
+                client.renameFile(from, to);
+            }
         }
         else if (command == "put")
         {

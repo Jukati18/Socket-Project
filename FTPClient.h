@@ -26,6 +26,12 @@ public:
     void downloadMultipleFiles();
     void listFiles();
     void togglePrompt();
+    bool changeDirectory(const std::string& path);
+    bool printWorkingDirectory();
+    bool makeDirectory(const std::string& dirname);
+    bool removeDirectory(const std::string& dirname);
+    bool deleteFile(const std::string& filename);
+    bool renameFile(const std::string& from, const std::string& to);
 
     // State
     bool isConnected() const { return m_connected; }
