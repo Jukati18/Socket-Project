@@ -147,6 +147,20 @@ void FTPClient::togglePassiveMode() {
     if (m_passiveMode) {
         string response = sendCommand("PASV");
         cout << "Server response: " << response << "\n";
+
+        // Parse PASV response (format: "227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)")
+        size_t start = response.find('(');
+        size_t end = response.find(')');
+        if (start != string::npos && end != string::npos) {
+            string pasvData = response.substr(start + 1, end - start - 1);
+            replace(pasvData.begin(), pasvData.end(), ',', ' ');
+            istringstream iss(pasvData);
+            int h1, h2, h3, h4, p1, p2;
+            iss >> h1 >> h2 >> h3 >> h4 >> p1 >> p2;
+            m_pasvIp = to_string(h1) + "." + to_string(h2) + "." + to_string(h3) + "." + to_string(h4);
+            m_pasvPort = p1 * 256 + p2;
+            cout << "PASV mode ready. Connect to " << m_pasvIp << ":" << m_pasvPort << endl;
+        }
     }
 }
 

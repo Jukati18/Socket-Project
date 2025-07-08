@@ -50,6 +50,8 @@ private:
     bool m_loggedIn;
     bool m_binaryMode;
     bool m_passiveMode;
+    std::string m_pasvIp;
+    int m_pasvPort;
     std::string m_currentDir;
     std::string m_host;
 
