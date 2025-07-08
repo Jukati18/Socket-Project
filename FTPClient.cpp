@@ -546,6 +546,7 @@ void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std
         }
     }
 
+
     // Return to original directory
     changeDirectory(currentRemoteDir);
 }
