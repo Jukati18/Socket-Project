@@ -5,6 +5,7 @@
 #include <string>
 #include <winsock2.h>
 #include <iostream>
+#include <algorithm>
 
 class FTPClient {
 public:
@@ -37,6 +38,10 @@ public:
     bool isConnected() const { return m_connected; }
     bool isLoggedIn() const { return m_loggedIn; }
     bool isPassiveMode() const { return m_passiveMode; }
+
+    //Recursive upload/dowload folders
+    void uploadFolderRecursive(const std::string& localPath, const std::string& remotePath);
+    void downloadFolderRecursive(const std::string& remotePath, const std::string& localPath);
 
 private:
     // Socket & session

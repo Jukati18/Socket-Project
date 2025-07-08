@@ -417,3 +417,135 @@ bool FTPClient::renameFile(const std::string& from, const std::string& to) {
     cout << response;
     return response.find("250") != string::npos;
 }
+
+void FTPClient::uploadFolderRecursive(const std::string& localPath, const std::string& remotePath) {
+    // Create the remote directory first
+    makeDirectory(remotePath);
+
+    // Change to the remote directory
+    changeDirectory(remotePath);
+
+    // Convert localPath to wide string
+    std::wstring wideLocalPath;
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, localPath.c_str(), (int)localPath.size(), NULL, 0);
+    wideLocalPath.resize(size_needed);
+    MultiByteToWideChar(CP_UTF8, 0, localPath.c_str(), (int)localPath.size(), &wideLocalPath[0], size_needed);
+
+    std::wstring searchPath = wideLocalPath + L"\\*";
+
+    WIN32_FIND_DATAW findFileData;
+    HANDLE hFind = FindFirstFileW(searchPath.c_str(), &findFileData);
+
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            // Convert wide char filename to UTF-8
+            std::wstring wfileName = findFileData.cFileName;
+            int utf8_size = WideCharToMultiByte(CP_UTF8, 0, wfileName.c_str(), (int)wfileName.size(), NULL, 0, NULL, NULL);
+            std::string fileName(utf8_size, 0);
+            WideCharToMultiByte(CP_UTF8, 0, wfileName.c_str(), (int)wfileName.size(), &fileName[0], utf8_size, NULL, NULL);
+
+            if (fileName == "." || fileName == "..") continue;
+
+            const std::string fullLocalPath = localPath + "\\" + fileName;
+            const std::string fullRemotePath = fileName;
+
+            if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                uploadFolderRecursive(fullLocalPath, fullRemotePath);
+            }
+            else {
+                if (promptConfirm) {
+                    std::cout << "Upload " << fileName << "? (y/n): ";
+                    char response;
+                    std::cin >> response;
+                    std::cin.ignore();
+                    if (tolower(response) != 'y') continue;
+                }
+                uploadFile(fullLocalPath);
+            }
+        } while (FindNextFileW(hFind, &findFileData) != 0);
+        FindClose(hFind);
+    }
+    changeDirectory("..");
+}
+
+void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std::string& localPath) {
+    // Create local directory if it doesn't exist
+    std::filesystem::create_directories(localPath);
+
+    // Save current directory
+    string currentRemoteDir = sendCommand("PWD");
+
+    // Change to the remote directory
+    changeDirectory(remotePath);
+
+    // Get list of files in remote directory
+    sockaddr_in dataAddr;
+    string portCommand;
+    SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
+    send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+
+    char buffer[1024];
+    int recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+
+    string listCmd = "LIST\r\n";
+    send(m_controlSocket, listCmd.c_str(), listCmd.length(), 0);
+    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+
+    sockaddr_in serverDataAddr;
+    int len = sizeof(serverDataAddr);
+    SOCKET dataConn = accept(dataSocket, (sockaddr*)&serverDataAddr, &len);
+
+    string fileList;
+    while ((recvLen = recv(dataConn, buffer, sizeof(buffer) - 1, 0)) > 0) {
+        buffer[recvLen] = '\0';
+        fileList += buffer;
+    }
+
+    closesocket(dataConn);
+    closesocket(dataSocket);
+
+    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+
+    // Parse the file list
+    istringstream iss(fileList);
+    string line;
+
+    while (getline(iss, line)) {
+        // Skip empty lines
+        if (line.empty()) continue;
+
+        // Parse filename and directory flag (simplified)
+        bool isDir = (line[0] == 'd');
+        size_t lastSpace = line.find_last_of(' ');
+        if (lastSpace == string::npos) continue;
+
+        string fileName = line.substr(lastSpace + 1);
+        if (fileName.empty() || fileName == "." || fileName == "..") continue;
+
+        const string fullRemotePath = fileName;
+        const string fullLocalPath = localPath + "\\" + fileName;
+
+        if (isDir) {
+            // Recursively download subdirectories
+            downloadFolderRecursive(fullRemotePath, fullLocalPath);
+        }
+        else {
+            // Download files
+            if (promptConfirm) {
+                cout << "Download " << fileName << "? (y/n): ";
+                char response;
+                cin >> response;
+                cin.ignore();
+                if (tolower(response) != 'y') continue;
+            }
+
+            downloadFile(fullRemotePath);
+        }
+    }
+
+    // Return to original directory
+    changeDirectory(currentRemoteDir);
+}
