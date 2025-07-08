@@ -8,28 +8,31 @@ using namespace std;
 void showHelp()
 {
     cout << "\nFTP Client Commands:\n"
-         << " connect <host> [port] - Ket noi toi FTP server\n"
-         << " login <user> <pass>   - Dang nhap\n"
-         << " disconnect            - Ngat ket noi\n"
-         << " binary                - Chuyen sang che do binary\n"
-         << " ascii                 - Chuyen sang che do ASCII\n"
-         << " passive               - Bat/tat passive mode\n"
-         << " status                - Xem trang thai\n"
-         << " put                   - Upload 1 file (co scan)\n"
-         << " mput                  - Upload nhieu file\n"
-         << " get                   - Tai 1 file ve\n"
-         << " mget                  - Tai nhieu file ve\n"
-         << " ls                    - Xem danh sach file tren server\n"
-         << " cd <path>             - Thay doi thu muc\n"
-         << " pwd                   - Xem thu muc hien tai\n"
-         << " mkdir <name>          - Tao thu muc\n"
-         << " rmdir <name>          - Xoa thu muc\n"
-         << " delete <file>         - Xoa file\n"
-         << " rename <from> <to>    - Doi ten file\n"
-         << " prompt                - Bat/tat xac nhan khi mget/mput\n"
-         << " help, ?               - Xem huong dan\n"
-         << " quit, exit            - Thoat chuong trinh\n\n";
+        << " connect <host> [port] - Ket noi toi FTP server\n"
+        << " login <user> <pass>   - Dang nhap\n"
+        << " disconnect            - Ngat ket noi\n"
+        << " binary                - Chuyen sang che do binary\n"
+        << " ascii                 - Chuyen sang che do ASCII\n"
+        << " passive               - Bat/tat passive mode\n"
+        << " status                - Xem trang thai\n"
+        << " put <file>            - Upload 1 file (co scan)\n"
+        << " mput                  - Upload nhieu file\n"
+        << " get <file>            - Tai 1 file ve\n"
+        << " mget                  - Tai nhieu file ve\n"
+        << " putall <folder>       - Upload de quy thu muc\n"
+        << " getall <folder>       - Tai de quy thu muc\n"
+        << " ls                    - Xem danh sach file tren server\n"
+        << " cd <path>             - Thay doi thu muc\n"
+        << " pwd                   - Xem thu muc hien tai\n"
+        << " mkdir <name>          - Tao thu muc\n"
+        << " rmdir <name>          - Xoa thu muc\n"
+        << " delete <file>         - Xoa file\n"
+        << " rename <from> <to>    - Doi ten file\n"
+        << " prompt                - Bat/tat xac nhan khi mget/mput\n"
+        << " help, ?               - Xem huong dan\n"
+        << " quit, exit            - Thoat chuong trinh\n\n";
 }
+
 int main()
 {
     FTPClient client;
@@ -185,6 +188,26 @@ int main()
             }
             client.uploadMultipleFiles();
         }
+        else if (command == "putall")
+        {
+            if (!client.isLoggedIn())
+            {
+                cout << "Ban phai dang nhap truoc khi upload thu muc.\n";
+                continue;
+            }
+            string localPath, remotePath;
+            iss >> localPath >> remotePath;
+            if (localPath.empty()) {
+                cout << "Usage: putall <local_folder> [remote_folder]\n";
+                cout << "       (remote_folder defaults to current directory)\n";
+            }
+            else {
+                if (remotePath.empty()) {
+                    remotePath = ".";
+                }
+                client.uploadFolderRecursive(localPath, remotePath);
+            }
+        }
         else if (command == "get")
         {
             if (!client.isLoggedIn())
@@ -205,9 +228,25 @@ int main()
             }
             client.downloadMultipleFiles();
         }
-        else if (command == "ls")
+        else if (command == "getall")
         {
-            client.listFiles();
+            if (!client.isLoggedIn())
+            {
+                cout << "Ban phai dang nhap truoc khi download thu muc.\n";
+                continue;
+            }
+            string remotePath, localPath;
+            iss >> remotePath >> localPath;
+            if (remotePath.empty()) {
+                cout << "Usage: getall <remote_folder> [local_folder]\n";
+                cout << "       (local_folder defaults to 'downloads')\n";
+            }
+            else {
+                if (localPath.empty()) {
+                    localPath = "downloads";
+                }
+                client.downloadFolderRecursive(remotePath, localPath);
+            }
         }
         else if (command == "prompt")
         {
