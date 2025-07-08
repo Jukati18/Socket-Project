@@ -473,30 +473,42 @@ void FTPClient::uploadFolderRecursive(const std::string& localPath, const std::s
 }
 
 void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std::string& localPath) {
-    // Create local directory if it doesn't exist
+    // Create local directory
     std::filesystem::create_directories(localPath);
+    cout << "Da tao thu muc: " << localPath << endl;
 
-    // Save current directory
-    string currentRemoteDir = sendCommand("PWD");
+    // Save current remote directory
+    string pwdCmd = "PWD\r\n";
+    send(m_controlSocket, pwdCmd.c_str(), pwdCmd.length(), 0);
+    char buffer[1024];
+    int recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
+    string currentRemoteDir = buffer;
 
-    // Change to the remote directory
-    changeDirectory(remotePath);
+    // Change to remote directory
+    string cwdCmd = "CWD " + remotePath + "\r\n";
+    send(m_controlSocket, cwdCmd.c_str(), cwdCmd.length(), 0);
+    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 
-    // Get list of files in remote directory
+    // Get directory listing
     sockaddr_in dataAddr;
     string portCommand;
     SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
     send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
-
-    char buffer[1024];
-    int recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 
     string listCmd = "LIST\r\n";
     send(m_controlSocket, listCmd.c_str(), listCmd.length(), 0);
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 
+    // Receive directory listing
     sockaddr_in serverDataAddr;
     int len = sizeof(serverDataAddr);
     SOCKET dataConn = accept(dataSocket, (sockaddr*)&serverDataAddr, &len);
@@ -510,18 +522,18 @@ void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std
     closesocket(dataConn);
     closesocket(dataSocket);
 
+    // Get transfer complete response
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 
-    // Parse the file list
+    // Parse directory listing
     istringstream iss(fileList);
     string line;
-
     while (getline(iss, line)) {
-        // Skip empty lines
         if (line.empty()) continue;
 
-        // Parse filename and directory flag (simplified)
+        // Simplified parsing - assumes Unix-style listing
         bool isDir = (line[0] == 'd');
         size_t lastSpace = line.find_last_of(' ');
         if (lastSpace == string::npos) continue;
@@ -529,15 +541,14 @@ void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std
         string fileName = line.substr(lastSpace + 1);
         if (fileName.empty() || fileName == "." || fileName == "..") continue;
 
-        const string fullRemotePath = fileName;
-        const string fullLocalPath = localPath + "\\" + fileName;
+        string fullRemotePath = fileName;
+        string fullLocalPath = localPath + "\\" + fileName;
 
         if (isDir) {
-            // Recursively download subdirectories
+            cout << "Phat hien thu muc: " << fileName << endl;
             downloadFolderRecursive(fullRemotePath, fullLocalPath);
         }
         else {
-            // Download files
             if (promptConfirm) {
                 cout << "Download " << fileName << "? (y/n): ";
                 char response;
@@ -546,11 +557,47 @@ void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std
                 if (tolower(response) != 'y') continue;
             }
 
-            downloadFile(fullRemotePath);
+            // Setup data connection for file download
+            SOCKET fileDataSocket = setupDataSocket(dataAddr, portCommand);
+            send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+            recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+            buffer[recvLen] = '\0';
+            cout << "[Server]: " << buffer;
+
+            string retrCmd = "RETR " + fileName + "\r\n";
+            send(m_controlSocket, retrCmd.c_str(), retrCmd.length(), 0);
+            recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+            buffer[recvLen] = '\0';
+            cout << "[Server]: " << buffer;
+
+            // Receive file data
+            SOCKET fileDataConn = accept(fileDataSocket, (sockaddr*)&serverDataAddr, &len);
+            ofstream outFile(fullLocalPath, ios::binary);
+            if (!outFile.is_open()) {
+                cout << "Khong the tao file: " << fullLocalPath << endl;
+                closesocket(fileDataConn);
+                closesocket(fileDataSocket);
+                continue;
+            }
+
+            while ((recvLen = recv(fileDataConn, buffer, sizeof(buffer), 0)) > 0) {
+                outFile.write(buffer, recvLen);
+            }
+            outFile.close();
+            closesocket(fileDataConn);
+            closesocket(fileDataSocket);
+
+            cout << "Da tai file ve: " << fullLocalPath << endl;
+            recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+            buffer[recvLen] = '\0';
+            cout << "[Server]: " << buffer;
         }
     }
 
-
     // Return to original directory
-    changeDirectory(currentRemoteDir);
+    string cwdBackCmd = "CWD " + currentRemoteDir + "\r\n";
+    send(m_controlSocket, cwdBackCmd.c_str(), cwdBackCmd.length(), 0);
+    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 }
