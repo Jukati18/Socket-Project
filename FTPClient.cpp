@@ -419,53 +419,57 @@ bool FTPClient::renameFile(const std::string& from, const std::string& to) {
 }
 
 void FTPClient::uploadFolderRecursive(const std::string& localPath, const std::string& remotePath) {
-    // Create the remote directory first
-    makeDirectory(remotePath);
+    // Create remote directory
+    string mkdirCommand = "MKD " + remotePath + "\r\n";
+    send(m_controlSocket, mkdirCommand.c_str(), mkdirCommand.length(), 0);
 
-    // Change to the remote directory
-    changeDirectory(remotePath);
+    char buffer[1024];
+    int recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 
-    // Convert localPath to wide string
-    std::wstring wideLocalPath;
-    int size_needed = MultiByteToWideChar(CP_UTF8, 0, localPath.c_str(), (int)localPath.size(), NULL, 0);
-    wideLocalPath.resize(size_needed);
-    MultiByteToWideChar(CP_UTF8, 0, localPath.c_str(), (int)localPath.size(), &wideLocalPath[0], size_needed);
+    // Change to remote directory
+    string cwdCommand = "CWD " + remotePath + "\r\n";
+    send(m_controlSocket, cwdCommand.c_str(), cwdCommand.length(), 0);
+    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 
-    std::wstring searchPath = wideLocalPath + L"\\*";
-
-    WIN32_FIND_DATAW findFileData;
-    HANDLE hFind = FindFirstFileW(searchPath.c_str(), &findFileData);
+    // Find all files in local directory
+    WIN32_FIND_DATAA findFileData;
+    HANDLE hFind = FindFirstFileA((localPath + "\\*").c_str(), &findFileData);
 
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
-            // Convert wide char filename to UTF-8
-            std::wstring wfileName = findFileData.cFileName;
-            int utf8_size = WideCharToMultiByte(CP_UTF8, 0, wfileName.c_str(), (int)wfileName.size(), NULL, 0, NULL, NULL);
-            std::string fileName(utf8_size, 0);
-            WideCharToMultiByte(CP_UTF8, 0, wfileName.c_str(), (int)wfileName.size(), &fileName[0], utf8_size, NULL, NULL);
-
+            string fileName = findFileData.cFileName;
             if (fileName == "." || fileName == "..") continue;
 
-            const std::string fullLocalPath = localPath + "\\" + fileName;
-            const std::string fullRemotePath = fileName;
+            string fullLocalPath = localPath + "\\" + fileName;
+            string fullRemotePath = fileName;
 
             if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                 uploadFolderRecursive(fullLocalPath, fullRemotePath);
             }
             else {
                 if (promptConfirm) {
-                    std::cout << "Upload " << fileName << "? (y/n): ";
+                    cout << "Upload " << fileName << "? (y/n): ";
                     char response;
-                    std::cin >> response;
-                    std::cin.ignore();
+                    cin >> response;
+                    cin.ignore();
                     if (tolower(response) != 'y') continue;
                 }
                 uploadFile(fullLocalPath);
             }
-        } while (FindNextFileW(hFind, &findFileData) != 0);
+        } while (FindNextFileA(hFind, &findFileData) != 0);
         FindClose(hFind);
     }
-    changeDirectory("..");
+
+    // Return to parent directory
+    string cwdBackCommand = "CDUP\r\n";
+    send(m_controlSocket, cwdBackCommand.c_str(), cwdBackCommand.length(), 0);
+    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+    buffer[recvLen] = '\0';
+    cout << "[Server]: " << buffer;
 }
 
 void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std::string& localPath) {
