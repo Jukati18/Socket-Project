@@ -1,0 +1,72 @@
+\documentclass[12pt]{article}
+
+\usepackage{hcmus-report-template}
+
+% Disable indentation on new paragraphs
+\setlength{\parindent}{0pt}
+
+% Line spacing 1.5
+\renewcommand{\baselinestretch}{1.5}
+
+% Optional: graphic path
+% \graphicspath{PATH_TO_GRAPHIC_FOLDER}
+
+% To use Times font family, uncomment this row
+% \usepackage{mathptmx}
+
+% To use roman section / subsection, uncomment these rows
+% \renewcommand{\thesection}{\Roman{section}}
+% \renewcommand{\thesubsection}{\thesection.\Roman{subsection}}
+
+% Define course name, report name and report title.
+\newcommand{\coursename}{Computer Networking}
+\newcommand{\reportname}{Socket Programming}
+\newcommand{\reporttitle}{Secure FTP Client with Virus Scanning via ClamAVAgent}
+
+\newcommand{\studentname}{Toan Nguyen Thanh (24127559)\\Viet Doan The (24127590)\\Huy Vo Minh (24127405)}
+\newcommand{\teachername}{MS. Son Le Ngoc\\MS. Quan Nguyen Thanh}
+
+% Header
+\lhead{\reportname}
+\rhead{
+University of Science - VNU-HCM\\
+\coursename
+}
+
+% Footer
+\newcommand{\leftfooter}{\LaTeX\ by \href{https://github.com/trhgquan}{Quan, Tran Hoang}}
+\lfoot{\leftfooter}
+
+% ============ DOCUMENT ============
+\begin{document}
+
+\pagenumbering{roman}
+\input{content/title.tex}
+
+\tableofcontents
+\pagebreak
+\listoftables
+\pagebreak
+\listoffigures
+\pagebreak
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{content/info.tex}
+% \input{content/section}
+% \input{content/hinhanh}
+% \input{content/bangbieu}
+% \input{content/congthuctoan}
+% \input{content/thuattoan}
+% \input{content/code}
+% \input{content/ngonngu}
+\input{content/cite}
+
+% References
+\input{ref/ref.tex}
+
+% Appendix
+\appendix
+% Add \cleardoublepage to move appendices to next page.
+\input{appendix/appendix.tex}
+\end{document}
