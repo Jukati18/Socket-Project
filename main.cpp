@@ -111,6 +111,11 @@ int main()
         }
          else if (command == "ls")
         {
+            if (!client.isLoggedIn())
+            {
+                cout << "Ban phai dang nhap truoc khi xem danh sach file.\n";
+                continue;
+            }
             client.listFiles();
         }
         else if (command == "cd")
