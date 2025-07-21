@@ -17,45 +17,53 @@ FTPClient::FTPClient()
       promptConfirm(true)
 {
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
         cerr << "WSAStartup failed\n";
     }
 }
 
-FTPClient::~FTPClient() {
-    if (m_connected) {
+FTPClient::~FTPClient()
+{
+    if (m_connected)
+    {
         disconnect();
     }
     WSACleanup();
 }
 
-bool FTPClient::connect(const std::string& host, int port) {
-    if (m_connected) {
+bool FTPClient::connect(const std::string &host, int port)
+{
+    if (m_connected)
+    {
         cout << "Already connected to " << m_host << "\n";
         return true;
     }
 
     m_controlSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (m_controlSocket == INVALID_SOCKET) {
+    if (m_controlSocket == INVALID_SOCKET)
+    {
         cerr << "Socket creation failed\n";
         return false;
     }
 
     addrinfo hints{};
-    addrinfo* result = nullptr;
+    addrinfo *result = nullptr;
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     string portStr = to_string(port);
 
     int status = getaddrinfo(host.c_str(), portStr.c_str(), &hints, &result);
-    if (status != 0) {
+    if (status != 0)
+    {
         cerr << "getaddrinfo failed: " << gai_strerror(status) << "\n";
         closesocket(m_controlSocket);
         return false;
     }
 
-    if (::connect(m_controlSocket, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR) {
+    if (::connect(m_controlSocket, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR)
+    {
         cerr << "Connection failed: " << WSAGetLastError() << "\n";
         freeaddrinfo(result);
         closesocket(m_controlSocket);
@@ -65,7 +73,8 @@ bool FTPClient::connect(const std::string& host, int port) {
     freeaddrinfo(result);
 
     string response = readResponse();
-    if (response.find("220") == string::npos) {
+    if (response.find("220") == string::npos)
+    {
         cerr << "Connection refused: " << response << "\n";
         closesocket(m_controlSocket);
         return false;
@@ -78,37 +87,44 @@ bool FTPClient::connect(const std::string& host, int port) {
     return true;
 }
 
-bool FTPClient::manualLogin(const std::string& username, const std::string& password) {
-    if (!m_connected) {
+bool FTPClient::manualLogin(const std::string &username, const std::string &password)
+{
+    if (!m_connected)
+    {
         cerr << "Not connected to server\n";
         return false;
     }
 
-    if (m_loggedIn) {
+    if (m_loggedIn)
+    {
         cout << "Already logged in as " << username << "\n";
         return true;
     }
 
     string userCmd = "USER " + username + "\r\n";
-    if (send(m_controlSocket, userCmd.c_str(), userCmd.size(), 0) == SOCKET_ERROR) {
+    if (send(m_controlSocket, userCmd.c_str(), userCmd.size(), 0) == SOCKET_ERROR)
+    {
         cerr << "Failed to send USER command\n";
         return false;
     }
 
     string response = readResponse();
-    if (response.find("331") == string::npos) {
+    if (response.find("331") == string::npos)
+    {
         cerr << "USER command failed: " << response << "\n";
         return false;
     }
 
     string passCmd = "PASS " + password + "\r\n";
-    if (send(m_controlSocket, passCmd.c_str(), passCmd.size(), 0) == SOCKET_ERROR) {
+    if (send(m_controlSocket, passCmd.c_str(), passCmd.size(), 0) == SOCKET_ERROR)
+    {
         cerr << "Failed to send PASS command\n";
         return false;
     }
 
     response = readResponse();
-    if (response.find("230") == string::npos) {
+    if (response.find("230") == string::npos)
+    {
         cerr << "Login failed: " << response << "\n";
         return false;
     }
@@ -118,8 +134,10 @@ bool FTPClient::manualLogin(const std::string& username, const std::string& pass
     return true;
 }
 
-void FTPClient::disconnect() {
-    if (!m_connected) return;
+void FTPClient::disconnect()
+{
+    if (!m_connected)
+        return;
     sendCommand("QUIT");
     closesocket(m_controlSocket);
     m_connected = false;
@@ -127,31 +145,39 @@ void FTPClient::disconnect() {
     cout << "Disconnected from " << m_host << "\n";
 }
 
-void FTPClient::setTransferMode(bool binary) {
-    if (!m_connected) {
+void FTPClient::setTransferMode(bool binary)
+{
+    if (!m_connected)
+    {
         cout << "Not connected\n";
         return;
     }
     m_binaryMode = binary;
     string response = sendCommand(binary ? "TYPE I" : "TYPE A");
-    if (response.find("200") != string::npos) {
+    if (response.find("200") != string::npos)
+    {
         cout << "Transfer mode set to " << (binary ? "binary" : "ASCII") << "\n";
-    } else {
+    }
+    else
+    {
         cerr << "Failed to set transfer mode: " << response << "\n";
     }
 }
 
-void FTPClient::togglePassiveMode() {
+void FTPClient::togglePassiveMode()
+{
     m_passiveMode = !m_passiveMode;
     cout << "Passive mode " << (m_passiveMode ? "enabled" : "disabled") << "\n";
-    if (m_passiveMode) {
+    if (m_passiveMode)
+    {
         string response = sendCommand("PASV");
         cout << "Server response: " << response << "\n";
 
         // Parse PASV response (format: "227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)")
         size_t start = response.find('(');
         size_t end = response.find(')');
-        if (start != string::npos && end != string::npos) {
+        if (start != string::npos && end != string::npos)
+        {
             string pasvData = response.substr(start + 1, end - start - 1);
             replace(pasvData.begin(), pasvData.end(), ',', ' ');
             istringstream iss(pasvData);
@@ -164,10 +190,12 @@ void FTPClient::togglePassiveMode() {
     }
 }
 
-void FTPClient::showStatus() const {
+void FTPClient::showStatus() const
+{
     cout << "\n=== FTP Client Status ===\n";
     cout << "Connected: " << (m_connected ? "Yes" : "No") << "\n";
-    if (m_connected) {
+    if (m_connected)
+    {
         cout << "Server: " << m_host << "\n";
     }
     cout << "Transfer mode: " << (m_binaryMode ? "Binary" : "ASCII") << "\n";
@@ -175,17 +203,21 @@ void FTPClient::showStatus() const {
     cout << "========================\n\n";
 }
 
-std::string FTPClient::sendCommand(const std::string& command) {
-    if (!m_connected) return "Not connected";
+std::string FTPClient::sendCommand(const std::string &command)
+{
+    if (!m_connected)
+        return "Not connected";
     string fullCommand = command + "\r\n";
     send(m_controlSocket, fullCommand.c_str(), fullCommand.length(), 0);
     return readResponse();
 }
 
-std::string FTPClient::readResponse() {
+std::string FTPClient::readResponse()
+{
     char buffer[4096];
     int bytesReceived = recv(m_controlSocket, buffer, sizeof(buffer), 0);
-    if (bytesReceived <= 0) {
+    if (bytesReceived <= 0)
+    {
         m_connected = false;
         return "Connection lost";
     }
@@ -196,14 +228,15 @@ std::string FTPClient::readResponse() {
 // File transfer & utility logic
 // =============================
 
-SOCKET FTPClient::setupDataSocket(sockaddr_in& dataAddr, std::string& portCommand) {
+SOCKET FTPClient::setupDataSocket(sockaddr_in &dataAddr, std::string &portCommand)
+{
     SOCKET dataSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     dataAddr.sin_family = AF_INET;
     dataAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     dataAddr.sin_port = 0;
-    bind(dataSocket, (sockaddr*)&dataAddr, sizeof(dataAddr));
+    bind(dataSocket, (sockaddr *)&dataAddr, sizeof(dataAddr));
     int addrLen = sizeof(dataAddr);
-    getsockname(dataSocket, (sockaddr*)&dataAddr, &addrLen);
+    getsockname(dataSocket, (sockaddr *)&dataAddr, &addrLen);
     int port = ntohs(dataAddr.sin_port);
     listen(dataSocket, 1);
     int p1 = port / 256;
@@ -212,16 +245,18 @@ SOCKET FTPClient::setupDataSocket(sockaddr_in& dataAddr, std::string& portComman
     return dataSocket;
 }
 
-bool FTPClient::scanWithClamAV(const std::string& filename) {
+bool FTPClient::scanWithClamAV(const std::string &filename)
+{
     SOCKET clamSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     sockaddr_in clamAddr;
     clamAddr.sin_family = AF_INET;
     clamAddr.sin_port = htons(8888);
     inet_pton(AF_INET, "127.0.0.1", &clamAddr.sin_addr);
-    ::connect(clamSocket, (sockaddr*)&clamAddr, sizeof(clamAddr));
+    ::connect(clamSocket, (sockaddr *)&clamAddr, sizeof(clamAddr));
     ifstream file(filename, ios::binary);
     char buffer[1024];
-    while (file.read(buffer, sizeof(buffer)) || file.gcount()) {
+    while (file.read(buffer, sizeof(buffer)) || file.gcount())
+    {
         send(clamSocket, buffer, file.gcount(), 0);
     }
     file.close();
@@ -233,142 +268,248 @@ bool FTPClient::scanWithClamAV(const std::string& filename) {
     return string(result).find("OK") != string::npos;
 }
 
-void FTPClient::uploadFile(const std::string& NameFile) {
-    if (!scanWithClamAV(NameFile)) {
+void FTPClient::uploadFile(const std::string &NameFile)
+{
+    if (!scanWithClamAV(NameFile))
+    {
         cout << "File bi nhiem virus. Khong the upload.\n";
         return;
     }
-    sockaddr_in dataAddr;
-    string portCommand;
-    SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
-    send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+
+    SOCKET dataConn = INVALID_SOCKET;
     char buffer[1024];
-    int recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
-    buffer[recvLen] = '\0';
-    cout << "[Server]: " << buffer;
+    int recvLen;
+
+    if (m_passiveMode)
+    {
+        // Passive: Client kết nối đến server
+        dataConn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        sockaddr_in pasvAddr;
+        pasvAddr.sin_family = AF_INET;
+        pasvAddr.sin_port = htons(m_pasvPort);
+        inet_pton(AF_INET, m_pasvIp.c_str(), &pasvAddr.sin_addr);
+        if (::connect(dataConn, (sockaddr *)&pasvAddr, sizeof(pasvAddr)) == SOCKET_ERROR)
+        {
+            cout << "Ket noi Passive that bai: " << WSAGetLastError() << endl;
+            closesocket(dataConn);
+            return;
+        }
+    }
+    else
+    {
+        // Active
+        sockaddr_in dataAddr;
+        string portCommand;
+        SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
+        send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+        recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+        buffer[recvLen] = '\0';
+        cout << "[Server]: " << buffer;
+
+        sockaddr_in serverDataAddr;
+        int serverDataAddrSize = sizeof(serverDataAddr);
+        dataConn = accept(dataSocket, (sockaddr *)&serverDataAddr, &serverDataAddrSize);
+        closesocket(dataSocket); // Đóng dataSocket sau accept
+    }
+
+    // Gửi lệnh STOR
     string storCommand = "STOR " + NameFile + "\r\n";
     send(m_controlSocket, storCommand.c_str(), storCommand.length(), 0);
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer;
-    sockaddr_in serverDataAddr;
-    int serverDataAddrSize = sizeof(serverDataAddr);
-    SOCKET dataConn = accept(dataSocket, (sockaddr*)&serverDataAddr, &serverDataAddrSize);
+
+    // Gửi dữ liệu file
     ifstream file(NameFile, ios::binary);
     char fileBuffer[1024];
     while (file.read(fileBuffer, sizeof(fileBuffer)) || file.gcount())
+    {
         send(dataConn, fileBuffer, file.gcount(), 0);
+    }
     file.close();
     shutdown(dataConn, SD_SEND);
     closesocket(dataConn);
-    closesocket(dataSocket);
+
+    // Nhận phản hồi cuối
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer;
 }
 
-void FTPClient::uploadMultipleFiles() {
+void FTPClient::uploadMultipleFiles()
+{
     cout << "Nhap cac ten file muon upload (cach nhau boi dau cach): ";
     string line;
     getline(cin, line);
     istringstream iss(line);
     string fname;
-    while (iss >> fname) {
-        if (promptConfirm) {
+    while (iss >> fname)
+    {
+        if (promptConfirm)
+        {
             cout << "Upload file \"" << fname << "\"? (y/n): ";
             string c;
             getline(cin, c);
-            if (c != "y" && c != "Y") continue;
+            if (c != "y" && c != "Y")
+                continue;
         }
         uploadFile(fname);
     }
 }
 
-void FTPClient::downloadFile(const std::string& filename) {
+void FTPClient::downloadFile(const std::string &filename)
+{
     std::filesystem::create_directory("downloads");
-    sockaddr_in dataAddr;
-    string portCommand;
-    SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
-    send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+
+    SOCKET dataConn = INVALID_SOCKET;
     char buffer[1024];
-    int recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
-    buffer[recvLen] = '\0';
-    cout << "[Server]: " << buffer;
+    int recvLen;
+
+    if (m_passiveMode)
+    {
+        // Passive: Client kết nối đến server
+        dataConn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        sockaddr_in pasvAddr;
+        pasvAddr.sin_family = AF_INET;
+        pasvAddr.sin_port = htons(m_pasvPort);
+        inet_pton(AF_INET, m_pasvIp.c_str(), &pasvAddr.sin_addr);
+        if (::connect(dataConn, (sockaddr *)&pasvAddr, sizeof(pasvAddr)) == SOCKET_ERROR)
+        {
+            cout << "Ket noi Passive that bai: " << WSAGetLastError() << endl;
+            closesocket(dataConn);
+            return;
+        }
+    }
+    else
+    {
+        // Active: Code gốc
+        sockaddr_in dataAddr;
+        string portCommand;
+        SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
+        send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+        recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+        buffer[recvLen] = '\0';
+        cout << "[Server]: " << buffer;
+
+        sockaddr_in serverDataAddr;
+        int len = sizeof(serverDataAddr);
+        dataConn = accept(dataSocket, (sockaddr *)&serverDataAddr, &len);
+        closesocket(dataSocket);
+    }
+
+    // Gửi lệnh RETR
     string retrCmd = "RETR " + filename + "\r\n";
     send(m_controlSocket, retrCmd.c_str(), retrCmd.length(), 0);
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer;
-    sockaddr_in serverDataAddr;
-    int len = sizeof(serverDataAddr);
-    SOCKET dataConn = accept(dataSocket, (sockaddr*)&serverDataAddr, &len);
+
+    // Nhận dữ liệu file
     ofstream outFile("downloads/" + filename, ios::binary);
-    while ((recvLen = recv(dataConn, buffer, sizeof(buffer), 0)) > 0) {
+    while ((recvLen = recv(dataConn, buffer, sizeof(buffer), 0)) > 0)
+    {
         outFile.write(buffer, recvLen);
     }
     outFile.close();
     closesocket(dataConn);
-    closesocket(dataSocket);
+
     cout << "Da tai file ve: downloads/" << filename << endl;
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer << endl;
 }
 
-void FTPClient::downloadMultipleFiles() {
+void FTPClient::downloadMultipleFiles()
+{
     cout << "Nhap cac ten file muon tai ve (cach nhau boi dau cach): ";
     string line;
     getline(cin, line);
     istringstream iss(line);
     string fname;
-    while (iss >> fname) {
-        if (promptConfirm) {
+    while (iss >> fname)
+    {
+        if (promptConfirm)
+        {
             cout << "Tai file \"" << fname << "\"? (y/n): ";
             char c;
             cin >> c;
             cin.ignore();
-            if (c != 'y' && c != 'Y') continue;
+            if (c != 'y' && c != 'Y')
+                continue;
         }
         downloadFile(fname);
     }
 }
 
-void FTPClient::listFiles() {
-    sockaddr_in dataAddr;
-    string portCommand;
-    SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
-    send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+void FTPClient::listFiles()
+{
+    SOCKET dataConn = INVALID_SOCKET;
     char buffer[1024];
-    int recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
-    buffer[recvLen] = '\0';
-    cout << "[Server]: " << buffer;
+    int recvLen;
+
+    if (m_passiveMode)
+    {
+        // Passive: Client kết nối đến server
+        dataConn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        sockaddr_in pasvAddr;
+        pasvAddr.sin_family = AF_INET;
+        pasvAddr.sin_port = htons(m_pasvPort);
+        inet_pton(AF_INET, m_pasvIp.c_str(), &pasvAddr.sin_addr);
+        if (::connect(dataConn, (sockaddr *)&pasvAddr, sizeof(pasvAddr)) == SOCKET_ERROR)
+        {
+            cout << "Ket noi Passive that bai: " << WSAGetLastError() << endl;
+            closesocket(dataConn);
+            return;
+        }
+    }
+    else
+    {
+        // Active: Code gốc
+        sockaddr_in dataAddr;
+        string portCommand;
+        SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
+        send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
+        recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+        buffer[recvLen] = '\0';
+        cout << "[Server]: " << buffer;
+
+        sockaddr_in serverDataAddr;
+        int len = sizeof(serverDataAddr);
+        dataConn = accept(dataSocket, (sockaddr *)&serverDataAddr, &len);
+        closesocket(dataSocket);
+    }
+
+    // Gửi lệnh LIST
     string listCmd = "LIST\r\n";
     send(m_controlSocket, listCmd.c_str(), listCmd.length(), 0);
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer;
-    sockaddr_in serverDataAddr;
-    int len = sizeof(serverDataAddr);
-    SOCKET dataConn = accept(dataSocket, (sockaddr*)&serverDataAddr, &len);
+
+    // Nhận danh sách
     cout << "Danh sach file tren server:\n";
-    while ((recvLen = recv(dataConn, buffer, sizeof(buffer) - 1, 0)) > 0) {
+    while ((recvLen = recv(dataConn, buffer, sizeof(buffer) - 1, 0)) > 0)
+    {
         buffer[recvLen] = '\0';
         cout << buffer;
     }
     closesocket(dataConn);
-    closesocket(dataSocket);
+
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer << endl;
 }
 
-void FTPClient::togglePrompt() {
+void FTPClient::togglePrompt()
+{
     promptConfirm = !promptConfirm;
     cout << "Xac nhan mget/mput: " << (promptConfirm ? "BAT" : "TAT") << endl;
 }
 
-bool FTPClient::changeDirectory(const std::string& path) {
-    if (!m_connected) {
+bool FTPClient::changeDirectory(const std::string &path)
+{
+    if (!m_connected)
+    {
         cout << "Not connected\n";
         return false;
     }
@@ -377,8 +518,10 @@ bool FTPClient::changeDirectory(const std::string& path) {
     return response.find("250") != string::npos;
 }
 
-bool FTPClient::printWorkingDirectory() {
-    if (!m_connected) {
+bool FTPClient::printWorkingDirectory()
+{
+    if (!m_connected)
+    {
         cout << "Not connected\n";
         return false;
     }
@@ -387,8 +530,10 @@ bool FTPClient::printWorkingDirectory() {
     return true;
 }
 
-bool FTPClient::makeDirectory(const std::string& dirname) {
-    if (!m_connected) {
+bool FTPClient::makeDirectory(const std::string &dirname)
+{
+    if (!m_connected)
+    {
         cout << "Not connected\n";
         return false;
     }
@@ -397,8 +542,10 @@ bool FTPClient::makeDirectory(const std::string& dirname) {
     return response.find("257") != string::npos;
 }
 
-bool FTPClient::removeDirectory(const std::string& dirname) {
-    if (!m_connected) {
+bool FTPClient::removeDirectory(const std::string &dirname)
+{
+    if (!m_connected)
+    {
         cout << "Not connected\n";
         return false;
     }
@@ -407,8 +554,10 @@ bool FTPClient::removeDirectory(const std::string& dirname) {
     return response.find("250") != string::npos;
 }
 
-bool FTPClient::deleteFile(const std::string& filename) {
-    if (!m_connected) {
+bool FTPClient::deleteFile(const std::string &filename)
+{
+    if (!m_connected)
+    {
         cout << "Not connected\n";
         return false;
     }
@@ -417,13 +566,16 @@ bool FTPClient::deleteFile(const std::string& filename) {
     return response.find("250") != string::npos;
 }
 
-bool FTPClient::renameFile(const std::string& from, const std::string& to) {
-    if (!m_connected) {
+bool FTPClient::renameFile(const std::string &from, const std::string &to)
+{
+    if (!m_connected)
+    {
         cout << "Not connected\n";
         return false;
     }
     string response = sendCommand("RNFR " + from);
-    if (response.find("350") == string::npos) {
+    if (response.find("350") == string::npos)
+    {
         cout << response;
         return false;
     }
@@ -432,7 +584,8 @@ bool FTPClient::renameFile(const std::string& from, const std::string& to) {
     return response.find("250") != string::npos;
 }
 
-void FTPClient::uploadFolderRecursive(const std::string& localPath, const std::string& remotePath) {
+void FTPClient::uploadFolderRecursive(const std::string &localPath, const std::string &remotePath)
+{
     // Create remote directory
     string mkdirCommand = "MKD " + remotePath + "\r\n";
     send(m_controlSocket, mkdirCommand.c_str(), mkdirCommand.length(), 0);
@@ -453,24 +606,31 @@ void FTPClient::uploadFolderRecursive(const std::string& localPath, const std::s
     WIN32_FIND_DATAA findFileData;
     HANDLE hFind = FindFirstFileA((localPath + "\\*").c_str(), &findFileData);
 
-    if (hFind != INVALID_HANDLE_VALUE) {
-        do {
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
             string fileName = findFileData.cFileName;
-            if (fileName == "." || fileName == "..") continue;
+            if (fileName == "." || fileName == "..")
+                continue;
 
             string fullLocalPath = localPath + "\\" + fileName;
             string fullRemotePath = fileName;
 
-            if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
                 uploadFolderRecursive(fullLocalPath, fullRemotePath);
             }
-            else {
-                if (promptConfirm) {
+            else
+            {
+                if (promptConfirm)
+                {
                     cout << "Upload " << fileName << "? (y/n): ";
                     char response;
                     cin >> response;
                     cin.ignore();
-                    if (tolower(response) != 'y') continue;
+                    if (tolower(response) != 'y')
+                        continue;
                 }
                 uploadFile(fullLocalPath);
             }
@@ -486,7 +646,8 @@ void FTPClient::uploadFolderRecursive(const std::string& localPath, const std::s
     cout << "[Server]: " << buffer;
 }
 
-void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std::string& localPath) {
+void FTPClient::downloadFolderRecursive(const std::string &remotePath, const std::string &localPath)
+{
     // Create local directory
     std::filesystem::create_directories(localPath);
     cout << "Da tao thu muc: " << localPath << endl;
@@ -525,10 +686,11 @@ void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std
     // Receive directory listing
     sockaddr_in serverDataAddr;
     int len = sizeof(serverDataAddr);
-    SOCKET dataConn = accept(dataSocket, (sockaddr*)&serverDataAddr, &len);
+    SOCKET dataConn = accept(dataSocket, (sockaddr *)&serverDataAddr, &len);
 
     string fileList;
-    while ((recvLen = recv(dataConn, buffer, sizeof(buffer) - 1, 0)) > 0) {
+    while ((recvLen = recv(dataConn, buffer, sizeof(buffer) - 1, 0)) > 0)
+    {
         buffer[recvLen] = '\0';
         fileList += buffer;
     }
@@ -544,31 +706,39 @@ void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std
     // Parse directory listing
     istringstream iss(fileList);
     string line;
-    while (getline(iss, line)) {
-        if (line.empty()) continue;
+    while (getline(iss, line))
+    {
+        if (line.empty())
+            continue;
 
         // Simplified parsing - assumes Unix-style listing
         bool isDir = (line[0] == 'd');
         size_t lastSpace = line.find_last_of(' ');
-        if (lastSpace == string::npos) continue;
+        if (lastSpace == string::npos)
+            continue;
 
         string fileName = line.substr(lastSpace + 1);
-        if (fileName.empty() || fileName == "." || fileName == "..") continue;
+        if (fileName.empty() || fileName == "." || fileName == "..")
+            continue;
 
         string fullRemotePath = fileName;
         string fullLocalPath = localPath + "\\" + fileName;
 
-        if (isDir) {
+        if (isDir)
+        {
             cout << "Phat hien thu muc: " << fileName << endl;
             downloadFolderRecursive(fullRemotePath, fullLocalPath);
         }
-        else {
-            if (promptConfirm) {
+        else
+        {
+            if (promptConfirm)
+            {
                 cout << "Download " << fileName << "? (y/n): ";
                 char response;
                 cin >> response;
                 cin.ignore();
-                if (tolower(response) != 'y') continue;
+                if (tolower(response) != 'y')
+                    continue;
             }
 
             // Setup data connection for file download
@@ -585,16 +755,18 @@ void FTPClient::downloadFolderRecursive(const std::string& remotePath, const std
             cout << "[Server]: " << buffer;
 
             // Receive file data
-            SOCKET fileDataConn = accept(fileDataSocket, (sockaddr*)&serverDataAddr, &len);
+            SOCKET fileDataConn = accept(fileDataSocket, (sockaddr *)&serverDataAddr, &len);
             ofstream outFile(fullLocalPath, ios::binary);
-            if (!outFile.is_open()) {
+            if (!outFile.is_open())
+            {
                 cout << "Khong the tao file: " << fullLocalPath << endl;
                 closesocket(fileDataConn);
                 closesocket(fileDataSocket);
                 continue;
             }
 
-            while ((recvLen = recv(fileDataConn, buffer, sizeof(buffer), 0)) > 0) {
+            while ((recvLen = recv(fileDataConn, buffer, sizeof(buffer), 0)) > 0)
+            {
                 outFile.write(buffer, recvLen);
             }
             outFile.close();
