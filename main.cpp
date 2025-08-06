@@ -227,6 +227,7 @@ int main()
         }
         else if (command == "mget")
         {
+            if (!client.isLoggedIn())
             {
                 cout << "Ban phai dang nhap truoc khi download file.\n";
                 continue;
