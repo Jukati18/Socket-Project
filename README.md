@@ -108,7 +108,8 @@ This project delivers a **secure FTP client** with integrated virus scanning. Th
 - Use a C++17 compatible compiler (e.g., g++ from MinGW or MSYS2).
 - In the source directory, compile with:
   ```sh
-  g++ -std=c++17 -o ftpclient main.cpp FTPClient.cpp Clamav_agent.cpp -lws2_32 -lstdc++fs
+  g++ -std=c++17 -o ftpclient main.cpp FTPClient.cpp FTPClient.h -lws2_32 -lstdc++fs
+  g++ -std=c++17 -o clamav_agent main.cpp main_clamav Clamav_agent.cpp Clamav_agent.h -lws2_32 -lstdc++fs
   ```
 - If you encounter missing library errors, verify your compiler installation and library paths.
 
