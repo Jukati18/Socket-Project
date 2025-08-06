@@ -22,7 +22,7 @@ void showHelp()
         << " putall <folder>       - Upload de quy thu muc\n"
         << " getall <folder>       - Tai de quy thu muc\n"
         << " ls                    - Xem danh sach file tren server\n"
-        << " cd <path>             - Thay doi thu muc\n"
+        << " cd <path>             - Thay doi duong dan\n"
         << " pwd                   - Xem thu muc hien tai\n"
         << " mkdir <name>          - Tao thu muc\n"
         << " rmdir <name>          - Xoa thu muc\n"
