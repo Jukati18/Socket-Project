@@ -1,0 +1,34 @@
+\section{Overview}
+\subsection{Target}
+\begin{itemize}
+    \item Demonstrate file transfer via FTP using a custom socket implementation, and scan for viruses with ClamAV Agent before uploading files.
+    \item Protect the server from files containing malware.
+    \item Practice Socket Programming, File Transfer Protocol, and ClamAV.
+\end{itemize}
+
+\subsection{Overall Architecture}
+This system is designed based on a three-component model:
+\begin{itemize}
+    \item \textbf{FTP Client}: A custom-developed application.
+    \item \textbf{ClamAV Agent}: A dedicated agent deployed to interface with the ClamAV antivirus engine.
+    \item \textbf{FTP Server}: A standard FTP server, such as FileZilla Server.
+\end{itemize}
+
+The core operational workflow is designed for security. When a user initiates a file upload, the file is not sent directly to the FTP Server. Instead, it follows a pre-scan procedure:
+\begin{enumerate}
+    \item The \textbf{FTP Client} first sends the file to the \textbf{ClamAV Agent} over a dedicated TCP socket on \textbf{port 8888}.
+    \item The Agent scans the file using the ClamAV engine.
+    \item Based on the scan result, the upload is either approved or rejected:
+    \begin{itemize}
+        \item If the Agent returns an \textbf{"OK"} status (indicating the file is clean), the FTP Client then proceeds to upload the file to the FTP Server.
+        \item If the result is \textbf{"INFECTED"}, the upload process is immediately aborted to prevent malware from reaching the server.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Main Components}
+\begin{itemize}
+    \item \textbf{FTP Client} (\texttt{ftp\_client.exe}): This is a C++ application that provides the user interface, handles standard FTP commands (e.g., \texttt{put}, \texttt{get}, \texttt{ls}), and manages communication with the ClamAV Agent for security scans.
+    \item \textbf{ClamAV Agent} (\texttt{clamav\_agent.exe}): A background process that acts as a security gateway. It continuously listens on port 8888 for incoming files from the Client. Upon receiving a file, it calls the \texttt{clamscan.exe} command-line scanner to perform the virus check and returns the final result ("OK" or "INFECTED") back to the Client.
+    \item \textbf{FTP Server} (\texttt{FileZilla Server}): A standard FTP server responsible for the secure storage and management of the uploaded files.
+\end{itemize}
+
