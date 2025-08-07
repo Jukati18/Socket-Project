@@ -1,0 +1,26 @@
+[
+{
+  "directory": "F:/VSCode/.vscode/Socket-Project2/build",
+  "command": "F:\\DevTools\\mingw64\\bin\\g++.exe   -g -std=gnu++17 -o CMakeFiles\\SocketProject.dir\\Clamav_agent.cpp.obj -c F:\\VSCode\\.vscode\\Socket-Project2\\Clamav_agent.cpp",
+  "file": "F:/VSCode/.vscode/Socket-Project2/Clamav_agent.cpp",
+  "output": "CMakeFiles/SocketProject.dir/Clamav_agent.cpp.obj"
+},
+{
+  "directory": "F:/VSCode/.vscode/Socket-Project2/build",
+  "command": "F:\\DevTools\\mingw64\\bin\\g++.exe   -g -std=gnu++17 -o CMakeFiles\\SocketProject.dir\\FTPClient.cpp.obj -c F:\\VSCode\\.vscode\\Socket-Project2\\FTPClient.cpp",
+  "file": "F:/VSCode/.vscode/Socket-Project2/FTPClient.cpp",
+  "output": "CMakeFiles/SocketProject.dir/FTPClient.cpp.obj"
+},
+{
+  "directory": "F:/VSCode/.vscode/Socket-Project2/build",
+  "command": "F:\\DevTools\\mingw64\\bin\\g++.exe   -g -std=gnu++17 -o CMakeFiles\\SocketProject.dir\\main.cpp.obj -c F:\\VSCode\\.vscode\\Socket-Project2\\main.cpp",
+  "file": "F:/VSCode/.vscode/Socket-Project2/main.cpp",
+  "output": "CMakeFiles/SocketProject.dir/main.cpp.obj"
+},
+{
+  "directory": "F:/VSCode/.vscode/Socket-Project2/build",
+  "command": "F:\\DevTools\\mingw64\\bin\\g++.exe   -g -std=gnu++17 -o CMakeFiles\\SocketProject.dir\\main_clamav.cpp.obj -c F:\\VSCode\\.vscode\\Socket-Project2\\main_clamav.cpp",
+  "file": "F:/VSCode/.vscode/Socket-Project2/main_clamav.cpp",
+  "output": "CMakeFiles/SocketProject.dir/main_clamav.cpp.obj"
+}
+]

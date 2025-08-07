@@ -1,0 +1,3 @@
+F:/VSCode/.vscode/Socket-Project2/build/CMakeFiles/SocketProject.dir
+F:/VSCode/.vscode/Socket-Project2/build/CMakeFiles/edit_cache.dir
+F:/VSCode/.vscode/Socket-Project2/build/CMakeFiles/rebuild_cache.dir
