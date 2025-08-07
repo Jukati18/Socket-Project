@@ -97,43 +97,43 @@ This project delivers a **secure FTP client** with integrated virus scanning. Th
 
 Connect to server:  
 
-FTP> connect ftp.example.com 21.
+- FTP> connect ftp.example.com 21.
 
-if successful: Connected to ftp.example.com (Not logged in yet).
+- if successful: Connected to ftp.example.com (Not logged in yet).
 
-if failed: Connection failed [error code].
+- if failed: Connection failed [error code].
 
 Login:
 
-FTP> login
+- FTP> login
 
-Username: [user enters username]
+- Username: [user enters username]
 
-Password: [user enters password]
+- Password: [user enters password]
 
-if successful: Logged in as [username]
+- if successful: Logged in as [username]
 
-if failed: Login failed: [server response]
+- if failed: Login failed: [server response]
 
 Set transfer mode:
 
-FTP> setmode binary
+- FTP> setmode binary
 
-Transfer mode set to binary
+- Transfer mode set to binary
 
 Toggle passive mode:
 
-FTP> passive
+- FTP> passive
 
-Passive mode enabled
+- Passive mode enabled
 
-Server response: 227 Entering Passive Mode (192,168,1,100,15,203)
+- Server response: 227 Entering Passive Mode (192,168,1,100,15,203)
 
-PASV mode ready. Connect to 192.168.1.100:4043
+- PASV mode ready. Connect to 192.168.1.100:4043
 
 Check Status:
 
-FTP> status
+- FTP> status
 
 === FTP Client Status ===
 
@@ -149,11 +149,11 @@ Passive mode: Enabled
 
 Disconnect:
 
-FTP> disconnect
+- FTP> disconnect
 
-Disconnected from ftp.example.com
+- Disconnected from ftp.example.com
 
-Help:
+
 
 FTP> help
 
@@ -175,82 +175,82 @@ FTP> help
   
 ftp> get
 
-Nhap ten file de tai ve: Test.txt
+- Nhap ten file de tai ve: Test.txt
 
-[Tai file "Test.txt"? (Y/n): y
+- [Tai file "Test.txt"? (Y/n): y
 
-[Server]: 200 PORT command successful.
+- [Server]: 200 PORT command successful.
 
-[Server]: 150 Starting data transfer.
+- [Server]: 150 Starting data transfer.
 
-Da tai file ve: downloads/Test.txt
+- Da tai file ve: downloads/Test.txt
 
-[Server]: 226 Operation successful
+- [Server]: 226 Operation successful
 
 ftp> mget
-Nhap cac ten file muon tai ve (cach nhau boi dau cach): Test.txt NiceWord.docx
+- Nhap cac ten file muon tai ve (cach nhau boi dau cach): Test.txt NiceWord.docx
 
-Tai file "Test.txt"? (Y/n): y
+- Tai file "Test.txt"? (Y/n): y
 
-[Server]: 200 PORT command successful.
+- [Server]: 200 PORT command successful.
 
-[Server]: 150 Starting data transfer.
+- [Server]: 150 Starting data transfer.
 
-Da tai file ve: downloads/Test.txt
+- Da tai file ve: downloads/Test.txt
 
-[Server]: 226 Operation successful
+- [Server]: 226 Operation successful
 
-Tai file "NiceWord.docx"? (Y/n): y
+- Tai file "NiceWord.docx"? (Y/n): y
 
-[Server]: 200 PORT command successful.
+- [Server]: 200 PORT command successful.
 
-[Server]: 150 Starting data transfer.
+- [Server]: 150 Starting data transfer.
 
-Da tai file ve: downloads/NiceWord.docx
+- Da tai file ve: downloads/NiceWord.docx
 
-[Server]: 226 Operation successful
+- [Server]: 226 Operation successful
 
 ftp> put
 
-Nhap ten file de upload: Testketnoi.txt
+- Nhap ten file de upload: Testketnoi.txt
 
-[SCAN]: Ket qua quyet virus: OK
+- [SCAN]: Ket qua quyet virus: OK
 
-[Server]: 200 PORT command successful.
+- [Server]: 200 PORT command successful.
 
-[Server]: 150 Starting data transfer.
+- [Server]: 150 Starting data transfer.
 
-[Server]: 226 Operation successful.
-
-ftp> cd Hi
-
-250 CWD command successful
-
-ftp> pwd
-
-257 "/" is current directory.
+- [Server]: 226 Operation successful.
 
 ftp> cd Hi
 
-250 CWD command successful
+- 250 CWD command successful
 
 ftp> pwd
 
-257 "/Hi" is current directory.
+- 257 "/" is current directory.
+
+ftp> cd Hi
+
+- 250 CWD command successful
+
+ftp> pwd
+
+- 257 "/Hi" is current directory.
 
 ftp> prompt
 
-Xac nhan mget/mput: BAT
+- Xac nhan mget/mput: BAT
 
 ftp> prompt
 
-Xac nhan mget/mput: TAT
+- Xac nhan mget/mput: TAT
 
 FTP> quit
 
-Disconnected from [host]
+- Disconnected from [host]
 
-Goodbye!
+- Goodbye!
 
 ## 7. Detailed ClamAV Setup
 
