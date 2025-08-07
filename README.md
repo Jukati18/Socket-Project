@@ -97,7 +97,7 @@ This project delivers a **secure FTP client** with integrated virus scanning. Th
 
 Connect to server:  
 
-- FTP> connect ftp.example.com 21.
+- ftp> connect ftp.example.com 21.
 
 - if successful: Connected to ftp.example.com (Not logged in yet).
 
@@ -105,7 +105,7 @@ Connect to server:
 
 Login:
 
-- FTP> login
+- ftp> login
 
 - Username: [user enters username]
 
@@ -117,13 +117,13 @@ Login:
 
 Set transfer mode:
 
-- FTP> setmode binary
+- ftp> setmode binary
 
 - Transfer mode set to binary
 
 Toggle passive mode:
 
-- FTP> passive
+- ftp> passive
 
 - Passive mode enabled
 
@@ -133,7 +133,7 @@ Toggle passive mode:
 
 Check Status:
 
-- FTP> status
+- ftp> status
 
 === FTP Client Status ===
 
@@ -149,13 +149,13 @@ Passive mode: Enabled
 
 Disconnect:
 
-- FTP> disconnect
+- ftp> disconnect
 
 - Disconnected from ftp.example.com
 
 
 
-FTP> help
+ftp> help
 
 - connect <host> [port] - Connect to FTP server
   
@@ -246,7 +246,7 @@ ftp> prompt
 
 - Xac nhan mget/mput: TAT
 
-FTP> quit
+ftp> quit
 
 - Disconnected from [host]
 
