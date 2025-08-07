@@ -93,6 +93,8 @@ This project delivers a **secure FTP client** with integrated virus scanning. Th
 | `help`       | Display command help           |
 | `quit`       | Exit the client                |
 
+### Expected Output
+
 Connect to server:  
 
 FTP> connect ftp.example.com 21.
