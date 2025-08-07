@@ -171,6 +171,78 @@ FTP> help
   
 - quit                  - Exit the program
   
+ftp> get
+
+Nhap ten file de tai ve: Test.txt
+
+[Tai file "Test.txt"? (Y/n): y
+
+[Server]: 200 PORT command successful.
+
+[Server]: 150 Starting data transfer.
+
+Da tai file ve: downloads/Test.txt
+
+[Server]: 226 Operation successful
+
+ftp> mget
+Nhap cac ten file muon tai ve (cach nhau boi dau cach): Test.txt NiceWord.docx
+
+Tai file "Test.txt"? (Y/n): y
+
+[Server]: 200 PORT command successful.
+
+[Server]: 150 Starting data transfer.
+
+Da tai file ve: downloads/Test.txt
+
+[Server]: 226 Operation successful
+
+Tai file "NiceWord.docx"? (Y/n): y
+
+[Server]: 200 PORT command successful.
+
+[Server]: 150 Starting data transfer.
+
+Da tai file ve: downloads/NiceWord.docx
+
+[Server]: 226 Operation successful
+
+ftp> put
+
+Nhap ten file de upload: Testketnoi.txt
+
+[SCAN]: Ket qua quyet virus: OK
+
+[Server]: 200 PORT command successful.
+
+[Server]: 150 Starting data transfer.
+
+[Server]: 226 Operation successful.
+
+ftp> cd Hi
+
+250 CWD command successful
+
+ftp> pwd
+
+257 "/" is current directory.
+
+ftp> cd Hi
+
+250 CWD command successful
+
+ftp> pwd
+
+257 "/Hi" is current directory.
+
+ftp> prompt
+
+Xac nhan mget/mput: BAT
+
+ftp> prompt
+
+Xac nhan mget/mput: TAT
 
 FTP> quit
 
