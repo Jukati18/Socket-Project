@@ -282,7 +282,7 @@ void FTPClient::uploadFile(const std::string &NameFile)
 
     if (m_passiveMode)
     {
-        // Passive: Client kết nối đến server
+        // Passive mode
         dataConn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         sockaddr_in pasvAddr;
         pasvAddr.sin_family = AF_INET;
@@ -294,30 +294,40 @@ void FTPClient::uploadFile(const std::string &NameFile)
             closesocket(dataConn);
             return;
         }
+
+        // Gửi STOR trong passive mode
+        string storCommand = "STOR " + NameFile + "\r\n";
+        send(m_controlSocket, storCommand.c_str(), storCommand.length(), 0);
+        recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+        buffer[recvLen] = '\0';
+        cout << "[Server]: " << buffer;
     }
     else
     {
-        // Active
+        // Active mode
         sockaddr_in dataAddr;
         string portCommand;
         SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
+
+        // 1. Gửi PORT
         send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
         recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
         buffer[recvLen] = '\0';
         cout << "[Server]: " << buffer;
 
+        // 2. Gửi STOR
+        string storCommand = "STOR " + NameFile + "\r\n";
+        send(m_controlSocket, storCommand.c_str(), storCommand.length(), 0);
+        recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+        buffer[recvLen] = '\0';
+        cout << "[Server]: " << buffer;
+
+        // 3. Chờ server kết nối đến
         sockaddr_in serverDataAddr;
         int serverDataAddrSize = sizeof(serverDataAddr);
         dataConn = accept(dataSocket, (sockaddr *)&serverDataAddr, &serverDataAddrSize);
-        closesocket(dataSocket); // Đóng dataSocket sau accept
+        closesocket(dataSocket);
     }
-
-    // Gửi lệnh STOR
-    string storCommand = "STOR " + NameFile + "\r\n";
-    send(m_controlSocket, storCommand.c_str(), storCommand.length(), 0);
-    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
-    buffer[recvLen] = '\0';
-    cout << "[Server]: " << buffer;
 
     // Gửi dữ liệu file
     ifstream file(NameFile, ios::binary);
@@ -335,6 +345,7 @@ void FTPClient::uploadFile(const std::string &NameFile)
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer;
 }
+
 
 void FTPClient::uploadMultipleFiles()
 {
