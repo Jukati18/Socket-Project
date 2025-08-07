@@ -1,0 +1,15 @@
+\section{Problems Encountered and Solutions}
+\begin{table}[h!]
+\centering
+ \begin{tabular}{|p{3cm}|p{4cm}|p{4cm}|p{4cm}|}
+\hline
+Problem & Cause & Solution & Result \\
+\hline
+Server cannot login & Connect() function don’t provide login with user and password & Make ManualLogin() function & Now can input username and password \\
+\hline
+Server cannot change to passive mode & Client don’t send command PASV & Make togglePassive() send command & Now server can change to passive mode and appear log on server \\
+\hline
+Recursive upload and download cannot run & Not include library yet & Include library string and filesystem & Now function can run and dow/up multiple file \\
+\hline
+\end{tabular}
+\end{table}

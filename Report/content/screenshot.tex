@@ -1,0 +1,31 @@
+\section{Screenshots of a successful session}
+\subsection{System Requirements and Setup}
+\begin{itemize}
+    \item \textbf{Operating System:} Windows 10/11.
+    \item \textbf{Software Prerequisites:}
+    \begin{itemize}
+        \item \textbf{FileZilla Server:} Must be installed and running to act as the destination file server.
+        \item \textbf{ClamAV for Windows:} The ClamAV engine is required for scanning. The virus databases (\texttt{main.cvd}, \texttt{daily.cvd}, \texttt{bytecode.cvd}) must be downloaded manually from the official ClamAV website and placed in the appropriate database directory.
+    \end{itemize}
+    \item \textbf{Server Configuration:} An FTP user account (e.g., \texttt{testuser}) must be created on the FileZilla Server with read/write permissions to the target directory.
+\end{itemize}
+
+\subsection{Operating Instructions}
+To run the application, follow this specific order:
+\begin{enumerate}
+    \item \textbf{Step 1:} Execute \texttt{clamav\_agent.exe}. This will start the background agent, which will begin listening for incoming scan requests on TCP port 8888.
+    \item \textbf{Step 2:} Execute \texttt{ftp\_client.exe}. This will launch the main client application, allowing you to connect to the FTP server and begin a session.
+\end{enumerate}
+
+\subsection{Key Commands}
+The client supports several important commands, including:
+\begin{itemize}
+    \item \texttt{put}: Upload a single file (with pre-scan).
+    \item \texttt{mput}: Upload multiple files.
+    \item \texttt{get}: Download a single file.
+    \item \texttt{mget}: Download multiple files.
+    \item \texttt{ls}: List files on the server's current directory.
+    \item \texttt{putall}: Recursively upload an entire local folder.
+    \item \texttt{getall}: Recursively download an entire remote folder.
+\end{itemize}
+\subsection{Screenshots for a Successful Session}
