@@ -93,54 +93,89 @@ This project delivers a **secure FTP client** with integrated virus scanning. Th
 | `help`       | Display command help           |
 | `quit`       | Exit the client                |
 
-Connect to server:
-FTP> connect ftp.example.com 21
-if successful: Connected to ftp.example.com (Not logged in yet)
-if failed: Connection failed [error code]
+Connect to server:  
+
+FTP> connect ftp.example.com 21.
+
+if successful: Connected to ftp.example.com (Not logged in yet).
+
+if failed: Connection failed [error code].
 
 Login:
+
 FTP> login
+
 Username: [user enters username]
+
 Password: [user enters password]
+
 if successful: Logged in as [username]
+
 if failed: Login failed: [server response]
 
 Set transfer mode:
+
 FTP> setmode binary
+
 Transfer mode set to binary
 
 Toggle passive mode:
+
 FTP> passive
+
 Passive mode enabled
+
 Server response: 227 Entering Passive Mode (192,168,1,100,15,203)
+
 PASV mode ready. Connect to 192.168.1.100:4043
 
+Check Status:
+
 FTP> status
+
 === FTP Client Status ===
+
 Connected: Yes
+
 Server: ftp.example.com
+
 Logged in: Yes
+
 Transfer mode: Binary
+
 Passive mode: Enabled
-========================
 
 Disconnect:
+
 FTP> disconnect
+
 Disconnected from ftp.example.com
 
 Help:
+
 FTP> help
+
 - connect <host> [port] - Connect to FTP server
+  
 - login                 - Login to server
+  
 - disconnect            - Disconnect from server
+  
 - setmode <binary|ascii>- Set transfer mode
+  
 - passive               - Toggle passive mode
+  
 - status                - Show connection status
+  
 - help                  - Show this help
+  
 - quit                  - Exit the program
+  
 
 FTP> quit
+
 Disconnected from [host]
+
 Goodbye!
 
 ## 7. Detailed ClamAV Setup
