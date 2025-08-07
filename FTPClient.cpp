@@ -378,7 +378,16 @@ void FTPClient::downloadFile(const std::string &filename)
 
     if (m_passiveMode)
     {
-        // Passive: Client kết nối đến server
+        // Gửi lệnh RETR trước
+        string retrCmd = "RETR " + filename + "\r\n";
+        send(m_controlSocket, retrCmd.c_str(), retrCmd.length(), 0);
+
+        // Nhận phản hồi (ví dụ: 150 Opening data connection)
+        recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+        buffer[recvLen] = '\0';
+        cout << "[Server]: " << buffer;
+
+        // Kết nối đến server (PASV)
         dataConn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         sockaddr_in pasvAddr;
         pasvAddr.sin_family = AF_INET;
@@ -393,29 +402,31 @@ void FTPClient::downloadFile(const std::string &filename)
     }
     else
     {
-        // Active: Code gốc
+        // Active: Gửi PORT và RETR trước
         sockaddr_in dataAddr;
         string portCommand;
         SOCKET dataSocket = setupDataSocket(dataAddr, portCommand);
+
         send(m_controlSocket, portCommand.c_str(), portCommand.length(), 0);
         recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
         buffer[recvLen] = '\0';
         cout << "[Server]: " << buffer;
 
+        // Gửi RETR
+        string retrCmd = "RETR " + filename + "\r\n";
+        send(m_controlSocket, retrCmd.c_str(), retrCmd.length(), 0);
+        recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
+        buffer[recvLen] = '\0';
+        cout << "[Server]: " << buffer;
+
+        // accept sau khi gửi RETR
         sockaddr_in serverDataAddr;
         int len = sizeof(serverDataAddr);
         dataConn = accept(dataSocket, (sockaddr *)&serverDataAddr, &len);
         closesocket(dataSocket);
     }
 
-    // Gửi lệnh RETR
-    string retrCmd = "RETR " + filename + "\r\n";
-    send(m_controlSocket, retrCmd.c_str(), retrCmd.length(), 0);
-    recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
-    buffer[recvLen] = '\0';
-    cout << "[Server]: " << buffer;
-
-    // Nhận dữ liệu file
+    // Nhận dữ liệu
     ofstream outFile("downloads/" + filename, ios::binary);
     while ((recvLen = recv(dataConn, buffer, sizeof(buffer), 0)) > 0)
     {
@@ -425,10 +436,13 @@ void FTPClient::downloadFile(const std::string &filename)
     closesocket(dataConn);
 
     cout << "Da tai file ve: downloads/" << filename << endl;
+
+    // Nhận phản hồi cuối
     recvLen = recv(m_controlSocket, buffer, sizeof(buffer) - 1, 0);
     buffer[recvLen] = '\0';
     cout << "[Server]: " << buffer << endl;
 }
+
 
 void FTPClient::downloadMultipleFiles()
 {
